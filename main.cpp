@@ -27,5 +27,6 @@ int main()
     store->advanceTo(working_hours + 60);
 
     delete[] clients;
+    delete store;
     return 0;
 }

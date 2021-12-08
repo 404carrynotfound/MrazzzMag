@@ -2,9 +2,12 @@
 
 #include <iostream>
 #include <cassert>
-#include <queue>
-#include <vector>
+//#include <queue>
+//#include <vector>
 #include <cmath>
+
+#include "./queue/queue.h"
+#include "./priority_queue/priority_queue.h"
 
 #include "interface.h"
 
@@ -16,6 +19,7 @@
 struct indexed_client : Client
 {
     int index;
+    indexed_client() = default;
     indexed_client(int index, Client client) : Client{ client } { this->index = index; }
 
     bool operator<(const indexed_client& other) const;
@@ -28,10 +32,15 @@ struct Worker
     int arrival = {};
 };
 
-using clients_list = std::queue<indexed_client>;
-using workers_list = std::queue<Worker>;
+using clients_list = Queue<indexed_client>;
+using workers_list = Queue<Worker>;
 
-using waiting_clients = std::priority_queue<indexed_client, std::vector<indexed_client>, std::greater<>>;
+using waiting_clients = priority_queue<indexed_client>;
+
+//using clients_list = std::queue<indexed_client>;
+//using workers_list = std::queue<Worker>;
+
+//using waiting_clients = std::priority_queue<indexed_client, std::vector<indexed_client>, std::greater<>>;
 
 struct MyStore : Store {
     ActionHandler* actionHandler = nullptr;

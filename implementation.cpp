@@ -81,7 +81,8 @@ void MyStore::attendance()
                 {
                     restock_schweppes(current.schweppes, current.arriveMinute);
                 }
-                waiting_clients_.push(current);
+                waiting_clients_.push(current, current.arriveMinute+ current.maxWaitTime);
+//                waiting_clients_.push(current);
                 waiting_clients_count_++;
             }
             else if (current.schweppes <= schweppes_)
@@ -90,14 +91,16 @@ void MyStore::attendance()
                 {
                     restock_banana(current.banana, current.arriveMinute);
                 }
-                waiting_clients_.push(current);
+                waiting_clients_.push(current, current.arriveMinute+ current.maxWaitTime);
+//                waiting_clients_.push(current);
                 waiting_clients_count_++;
             }
             else
             {
                 restock_banana(current.banana, current.arriveMinute);
                 restock_schweppes(current.schweppes, current.arriveMinute);
-                waiting_clients_.push(current);
+                waiting_clients_.push(current, current.arriveMinute+ current.maxWaitTime);
+//                waiting_clients_.push(current);
                 waiting_clients_count_++;
             }
             clients_.pop();
