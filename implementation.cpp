@@ -203,6 +203,8 @@ void MyStore::check_delivery()
             banana_ += RESTOCK_QUANTITY;
             waiting_bananas_ -= RESTOCK_QUANTITY;
 
+            workers_++;
+
             actionHandler->onWorkerBack(current.arrival, ResourceType::banana);
         }
     }
@@ -216,6 +218,8 @@ void MyStore::check_delivery()
 
             schweppes_ += RESTOCK_QUANTITY;
             waiting_schweppes_ -= RESTOCK_QUANTITY;
+
+            workers_++;
 
             actionHandler->onWorkerBack(current.arrival, ResourceType::schweppes);
         }
