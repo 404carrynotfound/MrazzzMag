@@ -69,7 +69,7 @@ struct MyStore : Store {
         {
             clients_.push(indexed_client{i, clients[i]});
         }
-        clients_count_ = count;
+        clients_count_ = count + 1;
     }
 
     void advanceTo(int minute) override
@@ -327,106 +327,3 @@ struct cli_handler : ActionHandler
                   << banana << " " << schweppes << std::endl;
     }
 };
-
-
-
-//void waiting()
-//{
-//    if (!waiting_clients_.empty())
-//    {
-//        const auto& client = waiting_clients_.top();
-//
-//        if (client.banana <= banana_ && client.schweppes <= schweppes_ && client.arriveMinute <= time_)
-//        {
-//            actionHandler->onClientDepart(client.index, time_, client.banana, client.schweppes);
-//            banana_ -= client.banana;
-//            schweppes_ -= client.schweppes;
-//            waiting_clients_.pop();
-//        }
-//        else if (client.arriveMinute + client.maxWaitTime == time_)
-//        {
-//            actionHandler->onClientDepart(client.index, time_, banana_, schweppes_);
-//            waiting_clients_.pop();
-//            banana_ = 0;
-//            schweppes_ = 0;
-//        }
-//    }
-//}
-//
-//void serves()
-//{
-//    if (!clients_.empty())
-//    {
-//        const auto& client = clients_.front();
-//
-//        const auto needed_banana_workers = static_cast<int>(ceil(client.banana / static_cast<double>(RESTOCK_QUANTITY)));
-//        const auto needed_schweppes_workers = static_cast<int>(ceil(client.schweppes / static_cast<double>(RESTOCK_QUANTITY)));
-//
-//        if (client.banana <= banana_ && client.schweppes <= schweppes_ && time_ >= client.arriveMinute)
-//        {
-//            actionHandler->onClientDepart(client.index, time_, client.banana, client.schweppes);
-//            banana_ -= client.banana;
-//            schweppes_ -= client.schweppes;
-//            clients_.pop();
-//        }
-//        else if (client.banana <= banana_ && time_ >= client.arriveMinute)
-//        {
-//            if (!workers_schweppes_.empty()) return;
-//            restock_schweppes(needed_schweppes_workers, time_);
-//            waiting_clients_.push(client);
-//            clients_.pop();
-//        }
-//        else if (client.schweppes <= schweppes_ && time_ >= client.arriveMinute)
-//        {
-//            if (!workers_banana_.empty()) return;
-//            restock_banana(needed_banana_workers, time_);
-//            waiting_clients_.push(client);
-//            clients_.pop();
-//        }
-//        else if (client.arriveMinute == time_)
-//        {
-//            const auto priority = needed_banana_workers < needed_schweppes_workers ? ResourceType::schweppes : ResourceType::banana;
-//
-//
-//            if (workers_banana_.empty() && needed_banana_workers != 0 && ResourceType::banana == priority && needed_banana_workers <= workers_)
-//            {
-//                restock_banana(needed_banana_workers, client.arriveMinute);
-//            }
-//            else if (workers_banana_.empty() && priority == ResourceType::banana && needed_banana_workers > workers_)
-//            {
-//                restock_banana(workers_, client.arriveMinute);
-//            }
-//
-//            if (workers_schweppes_.empty() && needed_schweppes_workers != 0 && ResourceType::schweppes == priority && needed_schweppes_workers <= workers_)
-//            {
-//                restock_schweppes(needed_schweppes_workers, client.arriveMinute);
-//            }
-//            else if (workers_schweppes_.empty() && priority == ResourceType::schweppes && needed_schweppes_workers > workers_)
-//            {
-//                restock_schweppes(workers_, client.arriveMinute);
-//            }
-//
-//            if (needed_banana_workers <= workers_ || needed_schweppes_workers <= workers_)
-//            {
-//                if (needed_schweppes_workers != 0 && priority == ResourceType::banana && workers_schweppes_.empty())
-//                {
-//                    restock_schweppes(needed_schweppes_workers, client.arriveMinute);
-//                }
-//                else if (needed_banana_workers != 0 && priority == ResourceType::schweppes && workers_banana_.empty())
-//                {
-//                    restock_banana(needed_banana_workers, client.arriveMinute);
-//                }
-//            }
-//            // if (priority == ResourceType::banana  && needed_banana_workers > workers_  )
-//            // {
-//            // 	restock_banana(workers_, client.arriveMinute);
-//            // }
-//            // else if (priority == ResourceType::schweppes && needed_schweppes_workers > workers_)
-//            // {
-//            // 	restock_schweppes(workers_, client.arriveMinute);
-//            // }
-//            waiting_clients_.push(client);
-//            clients_.pop();
-//        }
-//    }
-//}
