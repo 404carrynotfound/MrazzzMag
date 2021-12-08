@@ -76,8 +76,8 @@ struct MyStore : Store {
     {
         while (time_ <= minute)
         {
-            check_delivery();
             attendance();
+            check_delivery();
             time_++;
         }
     }
@@ -95,7 +95,7 @@ struct MyStore : Store {
     void attendance()
     {
         int counter = {};
-        while (!clients_.empty() && counter != clients_count_)
+        while (!clients_.empty() && counter != clients_count_ + 1)
         {
             const auto& current = clients_.front();
 
@@ -135,12 +135,13 @@ struct MyStore : Store {
                 clients_.pop();
                 clients_count_--;
             }
+            check_delivery();
             counter++;
         }
 
         counter = 0;
 
-        while (!waiting_clients_.empty() && counter != waiting_clients_count_)
+        while (!waiting_clients_.empty() && counter != waiting_clients_count_ + 1)
         {
             const auto &current = waiting_clients_.top();
 
@@ -152,32 +153,33 @@ struct MyStore : Store {
                 waiting_clients_.pop();
                 waiting_clients_count_--;
             }
-            else if (current.arriveMinute + current.maxWaitTime == time_)
+            else if (current.arriveMinute + current.maxWaitTime <= time_)
             {
                 if (current.banana <= banana_ && current.schweppes <= schweppes_)
                 {
                     banana_ -= current.banana;
                     schweppes_ -= current.schweppes;
-                    actionHandler->onClientDepart(current.index, time_, current.banana, current.schweppes);
+                    actionHandler->onClientDepart(current.index, current.arriveMinute + current.maxWaitTime, current.banana, current.schweppes);
                 }
                 else if (current.banana <= banana_) {
                     banana_ -= current.banana;
-                    actionHandler->onClientDepart(current.index, time_, current.banana, schweppes_);
+                    actionHandler->onClientDepart(current.index, current.arriveMinute + current.maxWaitTime, current.banana, schweppes_);
                     schweppes_ = 0;
                 }
                 else if (current.schweppes <= schweppes_) {
                     schweppes_ -= current.schweppes;
-                    actionHandler->onClientDepart(current.index, time_, banana_, current.schweppes);
+                    actionHandler->onClientDepart(current.index, current.arriveMinute + current.maxWaitTime, banana_, current.schweppes);
                     banana_ = 0;
                 }
                 else {
-                    actionHandler->onClientDepart(current.index, time_, banana_, schweppes_);
+                    actionHandler->onClientDepart(current.index, current.arriveMinute + current.maxWaitTime, banana_, schweppes_);
                     banana_ = 0;
                     schweppes_ = 0;
                 }
                 waiting_clients_.pop();
                 waiting_clients_count_--;
             }
+            check_delivery();
             counter++;
         }
     }

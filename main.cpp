@@ -4,37 +4,29 @@
 #include "interface.h"
 
 
-int main()
-{
-    Store* store = createStore();
+int main() {
+    Store *store = createStore();
+    store->setActionHandler(new cli_handler());
 
-    auto* const handler = new cli_handler();
-    store->setActionHandler(handler);
-    // store->setActionHandler(new cli_handler());
-    store->init(5, 0, 0);
+    int workers = {}, clients_count = {}, working_hours = {};
 
-     std::vector<Client> list;
-     list.push_back(Client{ 0, 10, 0, 10 });
-     list.push_back(Client{ 45, 35, 0, 30 });
-     list.push_back(Client{ 46, 30, 20, 100 });
-     list.push_back(Client{ 200, 10, 10, 1 });
-//     list.push_back(Client{ 10, 30, 80, 2 });
+    std::cin >> workers >> clients_count;
 
-//    std::vector<Client> list = {
-//            Client{0, 300, 0, 300},
-//            Client{1, 300, 0, 200},
-//            Client{5, 300, 0, 600}
-//    };
+    store->init(workers, 0, 0);
 
+    auto *clients = new Client[clients_count];
 
-    store->addClients(list.data(), list.size());
-    // store->advanceTo(20);
-    // store->advanceTo(30);
-    // store->advanceTo(40);
-    store->advanceTo(5000);
+    for (int i = 0; i < clients_count; ++i)
+    {
+        Client current = {};
+        std::cin >> current.arriveMinute >> current.banana
+                 >> current.schweppes >> current.maxWaitTime;
+        working_hours = std::max(current.arriveMinute + current.maxWaitTime, working_hours);
+        clients[i] = current;
+    }
+    store->addClients(clients, clients_count);
+    store->advanceTo(working_hours + 60);
 
-    std::cout << store->getBanana() << "bs" << store->getSchweppes() << std::endl;
-    // handler->print_logs();
-
+    delete[] clients;
     return 0;
 }
