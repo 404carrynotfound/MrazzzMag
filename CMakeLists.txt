@@ -5,6 +5,7 @@ project(MrazzzMag)
 set(SOURCES
         interface.h
         implementation.h
+        implementation.cpp
         main.cpp
         )
 add_executable(${PROJECT_NAME} ${SOURCES})

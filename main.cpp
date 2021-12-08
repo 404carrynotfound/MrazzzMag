@@ -1,10 +1,9 @@
 #include <iostream>
 
 #include "implementation.h"
-#include "interface.h"
 
-
-int main() {
+int main()
+{
     Store *store = createStore();
     store->setActionHandler(new cli_handler());
 
