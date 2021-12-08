@@ -95,7 +95,7 @@ struct MyStore : Store {
     void attendance()
     {
         int counter = {};
-        while (!clients_.empty() && counter != clients_count_ + 1)
+        while (!clients_.empty() && counter <= clients_count_)
         {
             const auto& current = clients_.front();
 
@@ -141,7 +141,7 @@ struct MyStore : Store {
 
         counter = 0;
 
-        while (!waiting_clients_.empty() && counter != waiting_clients_count_ + 1)
+        while (!waiting_clients_.empty() && counter <= waiting_clients_count_)
         {
             const auto &current = waiting_clients_.top();
 
