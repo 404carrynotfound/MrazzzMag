@@ -412,23 +412,3 @@ TEST_CASE("Clients arrive/depart in mixed order") {
         REQUIRE(LastEvent().client.index == 0);
     }
 }
-
-TEST_CASE("Two clients depart at the same time")
-{
-    TestStore store;
-    store.init(0,10,10);
-    store.addClients({
-        Client{10, 15, 10, 16},
-        Client{25, 15,100, 1}
-    });
-    store.advanceTo(26);
-
-    REQUIRE(store.log.size() == 2);
-    REQUIRE(store.log[0].type == StoreEvent::ClientDepart);
-    REQUIRE(store.log[0].client.banana == 10);
-    REQUIRE(store.log[0].client.schweppes == 10);
-
-    REQUIRE(store.log[1].type == StoreEvent::ClientDepart);
-    REQUIRE(store.log[1].client.banana == 0);
-    REQUIRE(store.log[1].client.schweppes == 0);
-}
