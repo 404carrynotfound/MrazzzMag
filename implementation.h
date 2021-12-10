@@ -2,12 +2,9 @@
 
 #include <iostream>
 #include <cassert>
-//#include <queue>
-//#include <vector>
 #include <cmath>
 
 #include "./queue/queue.h"
-#include "./priority_queue/priority_queue.h"
 
 #include "interface.h"
 
@@ -35,13 +32,6 @@ struct Worker
 using clients_list = Queue<indexed_client>;
 using workers_list = Queue<Worker>;
 
-using waiting_clients = priority_queue<indexed_client>;
-
-//using clients_list = std::queue<indexed_client>;
-//using workers_list = std::queue<Worker>;
-
-//using waiting_clients = std::priority_queue<indexed_client, std::vector<indexed_client>, std::greater<>>;
-
 struct MyStore : Store {
     ActionHandler* actionHandler = nullptr;
 
@@ -60,10 +50,9 @@ struct MyStore : Store {
 private:
     int time_ = { 0 };
 
-    int clients_count_ = {};
-    int waiting_clients_count_ = {};
-
     clients_list clients_ = {};
+    clients_list ordered_clients = {};
+
     int banana_ = { 0 };
     int schweppes_ = { 0 };
     int workers_ = {};
@@ -74,15 +63,18 @@ private:
     workers_list workers_banana_ = {};
     workers_list workers_schweppes_ = {};
 
-    waiting_clients waiting_clients_ = {};
-
-    void attendance();
+    void serve();
 
     void restock_banana(int quantity, int arrive);
 
     void restock_schweppes(int quantity, int arrive);
 
     void check_delivery();
+
+    //    int clients_count_ = {};
+    //    int waiting_clients_count_ = {};
+    //    waiting_clients waiting_clients_ = {};
+    //    void attendance();
 };
 
 struct cli_handler : ActionHandler

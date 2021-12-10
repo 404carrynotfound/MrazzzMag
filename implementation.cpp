@@ -37,14 +37,15 @@ void MyStore::addClients(const Client *clients, int count)
     {
         clients_.push(indexed_client{i, clients[i]});
     }
-    clients_count_ = count + 1;
+//    clients_count_ = count + 1;
 }
 
 void MyStore::advanceTo(int minute)
 {
     while (time_ <= minute)
     {
-        attendance();
+//        attendance();
+        serve();
         check_delivery();
         time_++;
     }
@@ -60,10 +61,9 @@ int MyStore::getSchweppes() const
     return schweppes_;
 }
 
-void MyStore::attendance()
+void MyStore::serve()
 {
-    int counter = {};
-    while (!clients_.empty() && counter <= clients_count_)
+    for (int i = 0; i < clients_.size(); ++i)
     {
         const auto& current = clients_.front();
 
@@ -71,7 +71,7 @@ void MyStore::attendance()
         {
             if (current.banana <= banana_ && current.schweppes <= schweppes_)
             {
-                actionHandler->onClientDepart(current.index, time_, current.banana, current.schweppes);
+                actionHandler->onClientDepart(current.index, current.arriveMinute, current.banana, current.schweppes);
                 banana_ -= current.banana;
                 schweppes_ -= current.schweppes;
             }
@@ -81,9 +81,7 @@ void MyStore::attendance()
                 {
                     restock_schweppes(current.schweppes, current.arriveMinute);
                 }
-                waiting_clients_.push(current, current.arriveMinute+ current.maxWaitTime);
-//                waiting_clients_.push(current);
-                waiting_clients_count_++;
+                ordered_clients.push(current);
             }
             else if (current.schweppes <= schweppes_)
             {
@@ -91,38 +89,32 @@ void MyStore::attendance()
                 {
                     restock_banana(current.banana, current.arriveMinute);
                 }
-                waiting_clients_.push(current, current.arriveMinute+ current.maxWaitTime);
-//                waiting_clients_.push(current);
-                waiting_clients_count_++;
+                ordered_clients.push(current);
             }
             else
             {
                 restock_banana(current.banana, current.arriveMinute);
                 restock_schweppes(current.schweppes, current.arriveMinute);
-                waiting_clients_.push(current, current.arriveMinute+ current.maxWaitTime);
-//                waiting_clients_.push(current);
-                waiting_clients_count_++;
+                ordered_clients.push(current);
             }
             clients_.pop();
-            clients_count_--;
+            --i;
         }
-        check_delivery();
-        counter++;
     }
 
-    counter = 0;
+    check_delivery();
 
-    while (!waiting_clients_.empty() && counter <= waiting_clients_count_)
+    for (int i = 0; i < ordered_clients.size(); ++i)
     {
-        const auto &current = waiting_clients_.top();
+        const auto& current = ordered_clients.front();
 
         if (current.banana <= banana_ && current.schweppes <= schweppes_)
         {
             actionHandler->onClientDepart(current.index, time_, current.banana, current.schweppes);
             banana_ -= current.banana;
             schweppes_ -= current.schweppes;
-            waiting_clients_.pop();
-            waiting_clients_count_--;
+            ordered_clients.pop();
+            --i;
         }
         else if (current.arriveMinute + current.maxWaitTime <= time_)
         {
@@ -147,13 +139,17 @@ void MyStore::attendance()
                 banana_ = 0;
                 schweppes_ = 0;
             }
-            waiting_clients_.pop();
-            waiting_clients_count_--;
+            ordered_clients.pop();
+            --i;
         }
-        check_delivery();
-        counter++;
+        else
+        {
+            ordered_clients.push(current);
+            ordered_clients.pop();
+        }
     }
 }
+
 
 void MyStore::restock_banana(int quantity, int arrive)
 {
@@ -256,3 +252,98 @@ Store* createStore()
 {
     return new MyStore();
 }
+
+//void MyStore::attendance()
+//{
+//    int counter = {};
+//    while (!clients_.empty() && counter <= clients_count_)
+//    {
+//        const auto& current = clients_.front();
+//
+//        if (current.arriveMinute <= time_)
+//        {
+//            if (current.banana <= banana_ && current.schweppes <= schweppes_)
+//            {
+//                actionHandler->onClientDepart(current.index, time_, current.banana, current.schweppes);
+//                banana_ -= current.banana;
+//                schweppes_ -= current.schweppes;
+//            }
+//            else if (current.banana <= banana_)
+//            {
+//                if (waiting_schweppes_ < current.schweppes)
+//                {
+//                    restock_schweppes(current.schweppes, current.arriveMinute);
+//                }
+//                waiting_clients_.push(current, current.arriveMinute+ current.maxWaitTime);
+//                //                waiting_clients_.push(current);
+//                waiting_clients_count_++;
+//            }
+//            else if (current.schweppes <= schweppes_)
+//            {
+//                if (waiting_bananas_ < current.banana)
+//                {
+//                    restock_banana(current.banana, current.arriveMinute);
+//                }
+//                waiting_clients_.push(current, current.arriveMinute+ current.maxWaitTime);
+//                //                waiting_clients_.push(current);
+//                waiting_clients_count_++;
+//            }
+//            else
+//            {
+//                restock_banana(current.banana, current.arriveMinute);
+//                restock_schweppes(current.schweppes, current.arriveMinute);
+//                waiting_clients_.push(current, current.arriveMinute+ current.maxWaitTime);
+//                //                waiting_clients_.push(current);
+//                waiting_clients_count_++;
+//            }
+//            clients_.pop();
+//            clients_count_--;
+//        }
+//        check_delivery();
+//        counter++;
+//    }
+//
+//    counter = 0;
+//
+//    while (!waiting_clients_.empty() && counter <= waiting_clients_count_)
+//    {
+//        const auto &current = waiting_clients_.top();
+//
+//        if (current.banana <= banana_ && current.schweppes <= schweppes_)
+//        {
+//            actionHandler->onClientDepart(current.index, time_, current.banana, current.schweppes);
+//            banana_ -= current.banana;
+//            schweppes_ -= current.schweppes;
+//            waiting_clients_.pop();
+//            waiting_clients_count_--;
+//        }
+//        else if (current.arriveMinute + current.maxWaitTime <= time_)
+//        {
+//            if (current.banana <= banana_ && current.schweppes <= schweppes_)
+//            {
+//                banana_ -= current.banana;
+//                schweppes_ -= current.schweppes;
+//                actionHandler->onClientDepart(current.index, current.arriveMinute + current.maxWaitTime, current.banana, current.schweppes);
+//            }
+//            else if (current.banana <= banana_) {
+//                banana_ -= current.banana;
+//                actionHandler->onClientDepart(current.index, current.arriveMinute + current.maxWaitTime, current.banana, schweppes_);
+//                schweppes_ = 0;
+//            }
+//            else if (current.schweppes <= schweppes_) {
+//                schweppes_ -= current.schweppes;
+//                actionHandler->onClientDepart(current.index, current.arriveMinute + current.maxWaitTime, banana_, current.schweppes);
+//                banana_ = 0;
+//            }
+//            else {
+//                actionHandler->onClientDepart(current.index, current.arriveMinute + current.maxWaitTime, banana_, schweppes_);
+//                banana_ = 0;
+//                schweppes_ = 0;
+//            }
+//            waiting_clients_.pop();
+//            waiting_clients_count_--;
+//        }
+//        check_delivery();
+//        counter++;
+//    }
+//}
