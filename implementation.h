@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cassert>
 #include <cmath>
+// #include <queue>
 
 #include "./queue/queue.h"
 
@@ -48,13 +49,13 @@ struct MyStore : Store {
     int getSchweppes() const override;
 
 private:
-    int time_ = { 0 };
+    int time_ = 0;
 
     clients_list clients_ = {};
     clients_list ordered_clients = {};
 
-    int banana_ = { 0 };
-    int schweppes_ = { 0 };
+    int banana_ = 0;
+    int schweppes_ = 0;
     int workers_ = {};
 
     int waiting_bananas_ = { 0 };

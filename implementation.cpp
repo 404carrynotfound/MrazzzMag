@@ -65,7 +65,7 @@ void MyStore::serve()
 {
     for (int i = 0; i < clients_.size(); ++i)
     {
-        const auto& current = clients_.front();
+        const indexed_client current = clients_.front();
 
         if (current.arriveMinute <= time_)
         {
@@ -106,7 +106,7 @@ void MyStore::serve()
 
     for (int i = 0; i < ordered_clients.size(); ++i)
     {
-        const auto& current = ordered_clients.front();
+        const indexed_client current = ordered_clients.front();
 
         if (current.banana <= banana_ && current.schweppes <= schweppes_)
         {
@@ -155,7 +155,7 @@ void MyStore::restock_banana(int quantity, int arrive)
 {
     if (workers_ == 0 || quantity <= waiting_bananas_) return;
 
-    const auto workers = static_cast<int>(ceil(abs(waiting_bananas_ - quantity) / static_cast<double>(RESTOCK_QUANTITY)));
+    const int workers = static_cast<int>(ceil(abs(waiting_bananas_ - quantity) / static_cast<double>(RESTOCK_QUANTITY)));
 
     int on_duty = { 0 };
 
@@ -173,7 +173,7 @@ void MyStore::restock_schweppes(int quantity, int arrive)
 {
     if (workers_ == 0 || quantity <= waiting_schweppes_) return;
 
-    const auto workers = static_cast<int>(ceil(abs(waiting_schweppes_ - quantity) / static_cast<double>(RESTOCK_QUANTITY)));
+    const int workers = static_cast<int>(ceil(abs(waiting_schweppes_ - quantity) / static_cast<double>(RESTOCK_QUANTITY)));
 
     int on_duty = { 0 };
 
@@ -193,7 +193,7 @@ void MyStore::check_delivery()
     {
         while (!workers_banana_.empty() && workers_banana_.front().arrival <= time_)
         {
-            const auto& current = workers_banana_.front();
+            const Worker current = workers_banana_.front();
             workers_banana_.pop();
 
             banana_ += RESTOCK_QUANTITY;
@@ -209,7 +209,7 @@ void MyStore::check_delivery()
     {
         while (!workers_schweppes_.empty() && workers_schweppes_.front().arrival <= time_)
         {
-            const auto& current = workers_schweppes_.front();
+            const Worker current = workers_schweppes_.front();
             workers_schweppes_.pop();
 
             schweppes_ += RESTOCK_QUANTITY;

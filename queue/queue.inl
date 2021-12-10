@@ -15,7 +15,7 @@
  	clear();
  	capacity_ = other_queue.capacity_;
  	storage_ = new T[capacity_];
- 	for (size_t i = other_queue.first_, j = 0; i < other_queue.last_; ++i, ++j)
+ 	for (int i = other_queue.first_, j = 0; i < other_queue.last_; ++i, ++j)
  	{
  		storage_[j] = other_queue.storage_[i];
  	}
@@ -31,7 +31,7 @@
  		clear();
  		capacity_ = other_queue.capacity_;
  		storage_ = new T[capacity_];
- 		for (size_t i = other_queue.first_, j = 0; i < other_queue.last_; ++i, ++j)
+ 		for (int i = other_queue.first_, j = 0; i < other_queue.last_; ++i, ++j)
  		{
  			storage_[j] = other_queue.storage_[i];
  		}
@@ -90,7 +90,7 @@
  }
 
  template <class T>
- size_t Queue<T>::size() const
+ int Queue<T>::size() const
  {
  	return last_ - first_;
  }
@@ -109,7 +109,7 @@
  {
  	capacity_ *= 2;
  	T* temp = new T[capacity_];
- 	for (size_t i = first_, j = 0; i < last_; ++i, ++j)
+ 	for (int i = first_, j = 0; i < last_; ++i, ++j)
  	{
  		temp[j] = storage_[i];
  	}

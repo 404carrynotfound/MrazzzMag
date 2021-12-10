@@ -23,16 +23,16 @@
 
  	bool empty() const;
 
- 	size_t size() const;
+ 	int size() const;
 
  private:
  	void clear();
  	void resize();
 
  	T* storage_ = { new T[MIN_SIZE] };
- 	size_t capacity_ = { MIN_SIZE };
- 	size_t first_ = {};
- 	size_t last_ = {};
+ 	int capacity_ = { MIN_SIZE };
+ 	int first_ = {};
+ 	int last_ = {};
  };
 
  #include "queue.inl"

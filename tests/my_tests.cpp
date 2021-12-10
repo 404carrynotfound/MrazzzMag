@@ -124,7 +124,7 @@ TEST_CASE("Restoring banana stocks is a priority")
     TestStore store;
     store.init(3, 0, 0);
     store.addClients({
-        Client{10, 230, 20, 90},
+        Client{10, 230, 40, 90},
         Client{20, 15, 25, 30},
         Client{30, 20, 20, 10},
         Client{100, 30, 20, 20}

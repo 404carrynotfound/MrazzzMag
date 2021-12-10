@@ -5,7 +5,7 @@
 int main()
 {
     Store *store = createStore();
-    auto* handler = new cli_handler();
+    cli_handler* handler = new cli_handler();
     store->setActionHandler(handler);
 
     int workers = {}, clients_count = {}, working_hours = {};
