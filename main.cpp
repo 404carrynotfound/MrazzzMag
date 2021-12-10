@@ -30,6 +30,6 @@ int main()
     delete[] clients;
     delete handler;
     delete store;
-    
+
     return 0;
 }
