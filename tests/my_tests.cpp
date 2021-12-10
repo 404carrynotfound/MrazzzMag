@@ -216,7 +216,7 @@ TEST_CASE("Clients just watching in the store")
     store.addClients({
         Client{0, 0, 0, 90},
         Client{90, 0, 0, 30}
-    });
+        });
 
     SECTION("Clients must not trigger workers")
     {
@@ -245,5 +245,4 @@ TEST_CASE("Clients just watching in the store")
         REQUIRE(store.getSchweppes() == 0);
         REQUIRE(store.getBanana() == 0);
     }
-
 }

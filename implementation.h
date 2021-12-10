@@ -51,6 +51,8 @@ struct MyStore : Store {
 private:
     int time_ = 0;
 
+    int client_index_ = 0;
+
     clients_list clients_ = {};
     clients_list ordered_clients = {};
 
