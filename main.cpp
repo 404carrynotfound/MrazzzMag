@@ -5,7 +5,8 @@
 int main()
 {
     Store *store = createStore();
-    store->setActionHandler(new cli_handler());
+    auto* handler = new cli_handler();
+    store->setActionHandler(handler);
 
     int workers = {}, clients_count = {}, working_hours = {};
 
@@ -27,6 +28,8 @@ int main()
     store->advanceTo(working_hours + 60);
 
     delete[] clients;
+    delete handler;
     delete store;
+    
     return 0;
 }
