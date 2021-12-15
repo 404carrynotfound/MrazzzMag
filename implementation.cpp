@@ -1,23 +1,5 @@
 #include "implementation.h"
 
-bool indexed_client::operator<(const indexed_client &other) const
-{
-    if (maxWaitTime + arriveMinute == other.maxWaitTime + other.arriveMinute)
-    {
-        return index < other.index;
-    }
-    return maxWaitTime + arriveMinute < other.maxWaitTime + other.arriveMinute;
-}
-
-bool indexed_client::operator>(const indexed_client &other) const
-{
-    if (maxWaitTime + arriveMinute == other.maxWaitTime + other.arriveMinute)
-    {
-        return index > other.index;
-    }
-    return maxWaitTime + arriveMinute > other.maxWaitTime + other.arriveMinute;
-}
-
 void MyStore::setActionHandler(ActionHandler *handler)
 {
     actionHandler = handler;
@@ -61,51 +43,72 @@ int MyStore::getSchweppes() const
 
 void MyStore::serve()
 {
+
     for (int i = 0; i < clients_.size(); ++i)
     {
         const indexed_client current = clients_.front();
 
+        /// Проверяваме  клиентите дали са пристигнали
         if (current.arriveMinute <= time_)
         {
+            /// Проверяваме дали има налични банани и швепс ги даваме на клиента след което той си тръгва.
             if (current.banana <= banana_ && current.schweppes <= schweppes_)
             {
                 actionHandler->onClientDepart(current.index, current.arriveMinute, current.banana, current.schweppes);
                 banana_ -= current.banana;
                 schweppes_ -= current.schweppes;
             }
+            /// Ако имаме достъчно банани, но нямаме швепс подаваме на желаните количества швепс на функция отговорна за зареждането.
             else if (current.banana <= banana_)
             {
                 if (waiting_schweppes_ < current.schweppes)
                 {
                     restock_schweppes(current.schweppes, current.arriveMinute);
                 }
+                /// Добавяме клиента в опашка за чакане.
                 ordered_clients.push(current);
             }
+            /// Ако имаме достъчно швепс, но нямаме банани подаваме на желаните количества банани на функция отговорна за зареждането.
             else if (current.schweppes <= schweppes_)
             {
                 if (waiting_bananas_ < current.banana)
                 {
                     restock_banana(current.banana, current.arriveMinute);
                 }
+                /// Добавяме клиента в опашка за чакане.
                 ordered_clients.push(current);
             }
+            /// Ако нямаме банани и швепс, зареждаме банани и швепс, ако бананите са с приоритет ако са равни.
             else
             {
-                restock_banana(current.banana, current.arriveMinute);
-                restock_schweppes(current.schweppes, current.arriveMinute);
+                /// Ако имаме един работник тогава проверяваме дали ни трябва повече швепс.
+                if (current.banana < current.schweppes && workers_ == 1)
+                {
+                    restock_schweppes(current.schweppes, current.arriveMinute);
+                }
+                else
+                {
+                    restock_banana(current.banana, current.arriveMinute);
+                    restock_schweppes(current.schweppes, current.arriveMinute);
+                }
+                /// Добавяме клиента в опашка за чакане.
                 ordered_clients.push(current);
             }
+            /// Премахваме клиетна който е обслужен или чака
             clients_.pop();
+            /// Намаляваме индекса, защото след като сме премахнали клиента размера на опашката се намалява.
             --i;
         }
     }
 
+    /// Проверяваме за доставка на продукти.
     check_delivery();
 
     for (int i = 0; i < ordered_clients.size(); ++i)
     {
         const indexed_client current = ordered_clients.front();
 
+        /// Проверяваме дали има налични банани и швепс ги даваме на текущия клиент.
         if (current.banana <= banana_ && current.schweppes <= schweppes_)
         {
             actionHandler->onClientDepart(current.index, time_, current.banana, current.schweppes);
@@ -114,6 +117,7 @@ void MyStore::serve()
             ordered_clients.pop();
             --i;
         }
+        /// Ако времето му за чакане е свършило, тогава му даваме количество което се нуждае, но ако нямаме му даваме колкото имаме налични.
         else if (current.arriveMinute + current.maxWaitTime <= time_)
         {
             if (current.banana <= banana_ && current.schweppes <= schweppes_)
@@ -140,6 +144,7 @@ void MyStore::serve()
             ordered_clients.pop();
             --i;
         }
+        /// Ако няма нужните продукти и има още време да чака го преместваме в края на опашката.
         else
         {
             ordered_clients.push(current);
@@ -148,11 +153,12 @@ void MyStore::serve()
     }
 }
 
-
+/// Приемаме количеството банани което ни трябва и минутата на пристигане.
 void MyStore::restock_banana(int quantity, int arrive)
 {
+    /// Ако нямаме свободни работници или чакаме повече банани прекратяване поръчката.
     if (workers_ == 0 || quantity <= waiting_bananas_) return;
-
+    /// Намираме колко работника са ни нужни за поръчката да бъде изпълнена.
     const int workers = static_cast<int>(ceil(abs(waiting_bananas_ - quantity) / static_cast<double>(RESTOCK_QUANTITY)));
 
     int on_duty = { 0 };
@@ -164,13 +170,16 @@ void MyStore::restock_banana(int quantity, int arrive)
         workers_--;
         on_duty++;
     }
+    /// Запазваме поръчаното количесто банани като използваме колко работника са изпратени за зареждане.
     waiting_bananas_ += on_duty * RESTOCK_QUANTITY;
 }
 
+/// Приемаме количеството швепс което ни трябва и минутата на пристигане.
 void MyStore::restock_schweppes(int quantity, int arrive)
 {
+    /// Ако нямаме свободни работници или чакаме повече швепс прекратяване поръчката.
     if (workers_ == 0 || quantity <= waiting_schweppes_) return;
-
+    /// Намираме колко работника са ни нужни за поръчката да бъде изпълнена.
     const int workers = static_cast<int>(ceil(abs(waiting_schweppes_ - quantity) / static_cast<double>(RESTOCK_QUANTITY)));
 
     int on_duty = { 0 };
@@ -182,13 +191,16 @@ void MyStore::restock_schweppes(int quantity, int arrive)
         workers_--;
         on_duty++;
     }
+    /// Запазваме поръчаното количесто швепс като използваме колко работника са изпратени за зареждане.
     waiting_schweppes_ += on_duty * RESTOCK_QUANTITY;
 }
 
 void MyStore::check_delivery()
 {
+    /// Проверяваме дали чакаме банани.
     if (waiting_bananas_ != 0)
     {
+        /// Проверяваме докато работниците изпратени за банани не се върнат или времето на пристигане е повече от текущото.
         while (!workers_banana_.empty() && workers_banana_.front().arrival <= time_)
         {
             const Worker current = workers_banana_.front();
@@ -202,9 +214,10 @@ void MyStore::check_delivery()
             actionHandler->onWorkerBack(current.arrival, ResourceType::banana);
         }
     }
-
+    /// Проверяваме дали чакаме швепс.
     if (waiting_schweppes_ != 0)
     {
+        /// Проверяваме докато работниците изпратени за швепс не се върнат или времето на пристигане е повече от текущото.
         while (!workers_schweppes_.empty() && workers_schweppes_.front().arrival <= time_)
         {
             const Worker current = workers_schweppes_.front();

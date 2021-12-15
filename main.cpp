@@ -25,7 +25,7 @@ int main()
         clients[i] = current;
     }
     store->addClients(clients, clients_count);
-    store->advanceTo(working_hours + 60);
+    store->advanceTo(60 + working_hours);
 
     delete[] clients;
     delete handler;

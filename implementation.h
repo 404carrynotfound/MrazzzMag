@@ -3,7 +3,6 @@
 #include <iostream>
 #include <cassert>
 #include <cmath>
-// #include <queue>
 
 #include "./queue/queue.h"
 
@@ -19,9 +18,6 @@ struct indexed_client : Client
     int index;
     indexed_client() = default;
     indexed_client(int index, Client client) : Client{ client } { this->index = index; }
-
-    bool operator<(const indexed_client& other) const;
-    bool operator>(const indexed_client& other) const;
 };
 
 struct Worker
@@ -73,11 +69,6 @@ private:
     void restock_schweppes(int quantity, int arrive);
 
     void check_delivery();
-
-    //    int clients_count_ = {};
-    //    int waiting_clients_count_ = {};
-    //    waiting_clients waiting_clients_ = {};
-    //    void attendance();
 };
 
 struct cli_handler : ActionHandler
