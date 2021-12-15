@@ -246,3 +246,114 @@ TEST_CASE("Clients just watching in the store")
         REQUIRE(store.getBanana() == 0);
     }
 }
+
+TEST_CASE("Same time arrival")
+{
+    TestStore store;
+    store.init(5, 0, 0);
+    store.addClients({
+        Client{0, 90, 20, 90},
+        Client{0, 20, 90, 65}
+    });
+
+    store.advanceTo(0);
+
+    SECTION("Send workers")
+    {
+        REQUIRE(store.log.size() == 2);
+
+        REQUIRE(store.log[0].type == StoreEvent::WorkerSend);
+        REQUIRE(store.log[0].minute == 0);
+        REQUIRE(store.log[0].worker.resource == ResourceType::banana);
+
+        REQUIRE(store.log[1].type == StoreEvent::WorkerSend);
+        REQUIRE(store.log[1].minute == 0);
+        REQUIRE(store.log[1].worker.resource == ResourceType::schweppes);
+    }
+
+    SECTION("Return workers")
+    {
+        store.advanceTo(60);
+
+        REQUIRE(store.log.size() == 5);
+
+        REQUIRE(store.log[2].type == StoreEvent::WorkerBack);
+        REQUIRE(store.log[2].minute == 60);
+        REQUIRE(store.log[2].worker.resource == ResourceType::banana);
+
+        REQUIRE(store.log[3].type == StoreEvent::WorkerBack);
+        REQUIRE(store.log[3].minute == 60);
+        REQUIRE(store.log[3].worker.resource == ResourceType::schweppes);
+
+        REQUIRE(store.log[4].type == StoreEvent::ClientDepart);
+        REQUIRE(store.log[4].minute == 60);
+        REQUIRE(store.log[4].client.index == 0);
+        REQUIRE(store.log[4].client.banana == 90);
+        REQUIRE(store.log[4].client.schweppes == 20);
+    }
+
+    SECTION("Last client depart")
+    {
+        store.advanceTo(65);
+
+        REQUIRE(store.log.size() == 6);
+
+        REQUIRE(LastEvent().type == StoreEvent::ClientDepart);
+        REQUIRE(LastEvent().minute == 65);
+        REQUIRE(LastEvent().client.index == 1);
+        REQUIRE(LastEvent().client.banana == 10);
+        REQUIRE(LastEvent().client.schweppes == 80);
+    }
+}
+
+TEST_CASE("Same time arrival and ordering more products")
+{
+    TestStore store;
+    store.init(5, 0, 0);
+    store.addClients({
+            Client{0, 100, 20, 65},
+            Client{0, 120, 190, 60}
+    });
+
+    store.advanceTo(0);
+
+    SECTION("4 workers send")
+    {
+        REQUIRE(store.log.size() == 4);
+
+        REQUIRE(store.log[0].type == StoreEvent::WorkerSend);
+        REQUIRE(store.log[0].minute == 0);
+        REQUIRE(store.log[0].worker.resource == ResourceType::banana);
+
+        REQUIRE(store.log[1].type == StoreEvent::WorkerSend);
+        REQUIRE(store.log[1].minute == 0);
+        REQUIRE(store.log[1].worker.resource == ResourceType::schweppes);
+
+        REQUIRE(store.log[2].type == StoreEvent::WorkerSend);
+        REQUIRE(store.log[2].minute == 0);
+        REQUIRE(store.log[2].worker.resource == ResourceType::banana);
+
+        REQUIRE(store.log[3].type == StoreEvent::WorkerSend);
+        REQUIRE(store.log[3].minute == 0);
+        REQUIRE(store.log[3].worker.resource == ResourceType::schweppes);
+    }
+
+    SECTION("Workers arrive and 1 client depart")
+    {
+        store.advanceTo(60);
+
+        REQUIRE(store.log.size() == 10);
+
+        REQUIRE(store.log[8].type == StoreEvent::ClientDepart);
+        REQUIRE(store.log[8].minute == 60);
+        REQUIRE(store.log[8].client.index == 0);
+        REQUIRE(store.log[8].client.banana == 100);
+        REQUIRE(store.log[8].client.schweppes == 20);
+
+        REQUIRE(LastEvent().type == StoreEvent::ClientDepart);
+        REQUIRE(LastEvent().minute == 60);
+        REQUIRE(LastEvent().client.index == 1);
+        REQUIRE(LastEvent().client.banana == 100);
+        REQUIRE(LastEvent().client.schweppes == 180);
+    }
+}
